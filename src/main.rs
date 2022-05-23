@@ -34,12 +34,18 @@ fn main() {
 fn save_window_position(args: &Args, config: &mut Config, mover: &impl Mover) {
     let window_name = mover.get_window_name();
     let position = mover.get_current_position();
-    config.add_window_position(&args.command_name, WindowPosition::new(window_name, position));
+    let screen_resolution = mover.get_screen_resolution();
+    config.add_window_position(
+        &args.command_name,
+        screen_resolution,
+        WindowPosition::new(window_name, position),
+    );
     config.save_config();
 }
 
 fn move_window_position(args: &Args, config: &mut Config, mover: &impl Mover) {
     let window_name = mover.get_window_name();
-    let target_position = config.get_position(&args.command_name, &window_name);
+    let screen_resolution = mover.get_screen_resolution();
+    let target_position = config.get_position(&screen_resolution, &args.command_name, &window_name);
     mover.move_to_position(target_position)
 }
