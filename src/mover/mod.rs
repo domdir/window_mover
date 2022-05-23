@@ -7,6 +7,7 @@ pub(crate) trait Mover {
     fn move_to_position(&self, position: Position);
     fn get_current_position(&self) -> Position;
     fn get_window_name(&self) -> String;
+    fn get_screen_resolution(&self) -> String;
 }
 
 pub(crate) fn create_mover() -> impl Mover {
