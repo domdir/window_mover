@@ -1,4 +1,4 @@
-use std::fs;
+use std::{collections::HashMap, fs};
 
 use dirs::config_dir;
 use json_pretty::PrettyFormatter;
@@ -8,7 +8,7 @@ const CONFIG_FILE_NAME: &str = "window_mover.json";
 
 #[derive(Serialize, Deserialize, Default)]
 pub(crate) struct Config {
-    pub(crate) commands: Vec<Command>,
+    pub(crate) commands: HashMap<String, Vec<Command>>,
 }
 
 impl Config {
@@ -38,33 +38,48 @@ impl Config {
     pub(crate) fn add_window_position(
         &mut self,
         command_name: &str,
+        screen_resolution: String,
         window_position: WindowPosition,
     ) {
-        let command = if let Some(c) = self
+        let commands = self
             .commands
+            .entry(screen_resolution)
+            .or_insert(Default::default());
+        let command = if let Some(c) = commands
             .iter_mut()
             .find(|cmd| cmd.name == command_name)
         {
             c
         } else {
-            self.commands
-                .push(Command::new(command_name.to_string(), Position::default()));
-            self.commands.last_mut().unwrap()
+            commands.push(Command::new(
+                command_name.to_string(),
+                Position::default(),
+            ));
+            commands.last_mut().unwrap()
         };
 
         command.window_positions.push(window_position);
     }
 
-    pub(crate) fn get_position(&self, command_name: &str, window_name: &str) -> Position {
-        if let Some(cmd) = self.commands.iter().find(|cmd| cmd.name == command_name) {
-            if let Some(pos) = cmd
-                .window_positions
-                .iter()
-                .find(|pos| pos.window_name.contains(window_name))
-            {
-                pos.position.clone()
+    pub(crate) fn get_position(
+        &self,
+        screen_resolution: &str,
+        command_name: &str,
+        window_name: &str,
+    ) -> Position {
+        if let Some(commands) = self.commands.get(screen_resolution) {
+            if let Some(cmd) = commands.iter().find(|cmd| cmd.name == command_name) {
+                if let Some(pos) = cmd
+                    .window_positions
+                    .iter()
+                    .find(|pos| pos.window_name.contains(window_name))
+                {
+                    pos.position.clone()
+                } else {
+                    cmd.default.clone()
+                }
             } else {
-                cmd.default.clone()
+                Position::default()
             }
         } else {
             Position::default()
