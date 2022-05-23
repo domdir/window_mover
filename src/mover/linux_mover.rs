@@ -86,4 +86,23 @@ impl Mover for LinuxMover {
         .to_string()
         .to_lowercase()
     }
+
+    fn get_screen_resolution(&self) -> String {
+        std::str::from_utf8(
+            &Command::new("xdpyinfo")
+                .output()
+                .expect("Failed to execute sdpyinfo. Is it installed?")
+                .stdout,
+        )
+        .expect("Output could not be converted")
+        .lines()
+        .find_map(|line| {
+            if line.contains("dimensions") {
+                Some(line.split_whitespace().nth(1)?.to_string())
+            } else {
+                None
+            }
+        })
+        .expect("No dimension output found")
+    }
 }
