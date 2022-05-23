@@ -91,7 +91,7 @@ impl Mover for LinuxMover {
         std::str::from_utf8(
             &Command::new("xdpyinfo")
                 .output()
-                .expect("Failed to execute sdpyinfo. Is it installed?")
+                .expect("Failed to execute xdpyinfo. Is it installed?")
                 .stdout,
         )
         .expect("Output could not be converted")

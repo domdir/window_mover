@@ -45,16 +45,10 @@ impl Config {
             .commands
             .entry(screen_resolution)
             .or_insert(Default::default());
-        let command = if let Some(c) = commands
-            .iter_mut()
-            .find(|cmd| cmd.name == command_name)
-        {
+        let command = if let Some(c) = commands.iter_mut().find(|cmd| cmd.name == command_name) {
             c
         } else {
-            commands.push(Command::new(
-                command_name.to_string(),
-                Position::default(),
-            ));
+            commands.push(Command::new(command_name.to_string(), Position::default()));
             commands.last_mut().unwrap()
         };
 
@@ -69,11 +63,13 @@ impl Config {
     ) -> Position {
         if let Some(commands) = self.commands.get(screen_resolution) {
             if let Some(cmd) = commands.iter().find(|cmd| cmd.name == command_name) {
-                if let Some(pos) = cmd
-                    .window_positions
-                    .iter()
-                    .find(|pos| pos.window_name.contains(window_name))
-                {
+                if let Some(pos) = cmd.window_positions.iter().find(|pos| {
+                    pos.window_names
+                        .iter()
+                        .filter(|name| name.contains(window_name))
+                        .next()
+                        != None
+                }) {
                     pos.position.clone()
                 } else {
                     cmd.default.clone()
@@ -106,14 +102,14 @@ impl Command {
 
 #[derive(Serialize, Deserialize)]
 pub(crate) struct WindowPosition {
-    window_name: String,
+    window_names: Vec<String>,
     position: Position,
 }
 
 impl WindowPosition {
     pub(crate) fn new(window_name: String, position: Position) -> Self {
         Self {
-            window_name,
+            window_names: vec![window_name],
             position,
         }
     }
