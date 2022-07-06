@@ -1,12 +1,11 @@
 use std::{collections::HashMap, fs};
 
 use dirs::config_dir;
-use json_pretty::PrettyFormatter;
 use serde::{Deserialize, Serialize};
 
-const CONFIG_FILE_NAME: &str = "window_mover.json";
+const CONFIG_FILE_NAME: &str = "window_mover.yaml";
 
-#[derive(Serialize, Deserialize, Default)]
+#[derive(Serialize, Deserialize, Default, Debug)]
 pub(crate) struct Config {
     pub(crate) commands: HashMap<String, Vec<Command>>,
 }
@@ -21,18 +20,16 @@ impl Config {
         file_path.push(CONFIG_FILE_NAME);
 
         let config_file_content = fs::read_to_string(file_path).ok()?;
-
-        serde_json::from_str(&config_file_content).ok()?
+        println!("{:?}", serde_yaml::from_str::<Config>(&config_file_content));
+        serde_yaml::from_str(&config_file_content).ok()?
     }
 
     pub(crate) fn save_config(&self) {
-        let config_str = serde_json::to_string(self).expect("Unable to serialize config");
-        let formatter = PrettyFormatter::from_str(&config_str);
-        let pretty_config_str = formatter.pretty();
+        let config_str = serde_yaml::to_string(self).expect("Unable to serialize config");
 
         let mut file_path = config_dir().expect("Home dir not found");
         file_path.push(CONFIG_FILE_NAME);
-        fs::write(file_path, pretty_config_str).expect("Unable to write config")
+        fs::write(file_path, config_str).expect("Unable to write config")
     }
 
     pub(crate) fn add_window_position(
@@ -83,7 +80,7 @@ impl Config {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub(crate) struct Command {
     name: String,
     window_positions: Vec<WindowPosition>,
@@ -100,7 +97,7 @@ impl Command {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub(crate) struct WindowPosition {
     window_names: Vec<String>,
     position: Position,
@@ -115,7 +112,7 @@ impl WindowPosition {
     }
 }
 
-#[derive(Serialize, Deserialize, Default, Clone)]
+#[derive(Serialize, Deserialize, Default, Clone, Debug)]
 pub(crate) struct Position {
     pub(crate) left: isize,
     pub(crate) top: isize,
