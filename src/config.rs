@@ -20,7 +20,6 @@ impl Config {
         file_path.push(CONFIG_FILE_NAME);
 
         let config_file_content = fs::read_to_string(file_path).ok()?;
-        println!("{:?}", serde_yaml::from_str::<Config>(&config_file_content));
         serde_yaml::from_str(&config_file_content).ok()?
     }
 

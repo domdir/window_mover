@@ -35,7 +35,7 @@ impl Mover for LinuxMover {
             .arg("-e")
             .arg(Self::position_to_str(&position))
             .output()
-            .expect("Failed to set postion.");
+            .expect("Failed to set position.");
     }
 
     fn get_current_position(&self) -> Position {
@@ -68,7 +68,7 @@ impl Mover for LinuxMover {
                 )
             })
             .find(|parts| parts.1 == window_name)
-            .expect("Could not find current window postion")
+            .expect("Could not find current window position")
             .0
     }
 
