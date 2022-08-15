@@ -14,7 +14,6 @@ struct Args {
     command_name: String,
 
     /// Whether the current window should be added to the config instead
-    /// it work
     #[clap(short, long)]
     save: bool,
 }
@@ -48,4 +47,13 @@ fn move_window_position(args: &Args, config: &mut Config, mover: &impl Mover) {
     let screen_resolution = mover.get_screen_resolution();
     let target_position = config.get_position(&screen_resolution, &args.command_name, &window_name);
     mover.move_to_position(target_position)
+}
+
+mod tests {
+    #[test]
+    fn my_test() {
+        let mut x = 3;
+        x += 2;
+        assert!(x == 5);
+    }
 }
